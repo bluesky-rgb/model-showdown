@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>并排对比</title>
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:#000;color:#eef1f8;font-family:system-ui,-apple-system,"PingFang SC",sans-serif;overflow:hidden}
+  .grid{display:grid;height:100%;grid-template-columns:1fr 1fr;gap:3px;background:#222}
+  .pane{position:relative;background:#000}
+  iframe{width:100%;height:100%;border:0;display:block}
+  .label{position:absolute;left:12px;bottom:12px;z-index:2;font-weight:900;font-size:clamp(13px,1.6vw,18px);letter-spacing:.04em;
+    padding:6px 12px;border-radius:10px;background:rgba(0,0,0,.6);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);pointer-events:none}
+  .a .label{color:#ff8a3d} .b .label{color:#8c9aff}
+  .bar{position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:5;display:flex;gap:6px;background:rgba(10,12,22,.7);
+    -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:5px;transition:opacity .4s}
+  .bar a,.bar button{color:#eef1f8;text-decoration:none;font:inherit;font-size:13px;font-weight:700;background:none;border:0;padding:6px 10px;border-radius:8px;cursor:pointer}
+  .bar a.on{background:rgba(255,255,255,.15)}
+  .bar.hide{opacity:0;pointer-events:none}
+  .missing{position:absolute;inset:0;display:none;align-items:center;justify-content:center;text-align:center;color:#98a0b6;padding:24px;font-size:14px}
+  @media (orientation:portrait){.grid{grid-template-columns:1fr;grid-template-rows:1fr 1fr}}
+  body.stack .grid{grid-template-columns:1fr;grid-template-rows:1fr 1fr}
+</style>
+</head>
+<body>
+<div class="bar" id="bar">
+  <a href="index.html">←</a>
+  <a data-t="01" href="?t=01">01 城市</a><a data-t="02" href="?t=02">02 赛车</a><a data-t="03" href="?t=03">03 流体</a>
+  <button id="swap" title="交换左右">⇄</button>
+  <button id="layout" title="左右 / 上下">▤</button>
+  <button id="hide" title="隐藏工具条（录屏用）">隐藏</button>
+</div>
+<div class="grid">
+  <div class="pane a" id="pa"><iframe id="fa" allow="autoplay; gamepad; fullscreen"></iframe><div class="label">Opus 5.5</div><div class="missing" id="ma"></div></div>
+  <div class="pane b" id="pb"><iframe id="fb" allow="autoplay; gamepad; fullscreen"></iframe><div class="label">Fable 5.2</div><div class="missing" id="mb"></div></div>
+</div>
+<script>
+const FILES = { '01':'01-night-city.html', '02':'02-racing-game.html', '03':'03-fluid.html' };
+const q = new URLSearchParams(location.search);
+const t = FILES[q.get('t')] ? q.get('t') : '01';
+const file = FILES[t];
+document.querySelectorAll('.bar a[data-t]').forEach(a => a.classList.toggle('on', a.dataset.t === t));
+function load(frameId, missId, dir){
+  const url = dir + '/' + file;
+  fetch(url, { method:'HEAD' }).then(r => {
+    if (r.ok) document.getElementById(frameId).src = url;
+    else { const m = document.getElementById(missId); m.style.display = 'flex'; m.textContent = '还没有上传 ' + url; }
+  }).catch(() => { document.getElementById(frameId).src = url; });
+}
+load('fa', 'ma', 'opus-5.5');
+load('fb', 'mb', 'fable-5.2');
+document.getElementById('swap').onclick = () => {
+  const g = document.querySelector('.grid'), a = document.getElementById('pa'), b = document.getElementById('pb');
+  g.insertBefore(g.lastElementChild, g.firstElementChild);
+};
+document.getElementById('layout').onclick = () => document.body.classList.toggle('stack');
+const bar = document.getElementById('bar');
+// 录屏时隐藏工具条；左上角留一个几乎透明的小圆点用来叫回工具条
+const dot = document.createElement('button');
+dot.style.cssText = 'position:fixed;top:6px;left:6px;z-index:6;width:22px;height:22px;border-radius:50%;border:0;background:rgba(255,255,255,.18);opacity:.35;display:none;cursor:pointer';
+document.body.appendChild(dot);
+const setHidden = h => { bar.classList.toggle('hide', h); dot.style.display = h ? 'block' : 'none'; };
+document.getElementById('hide').onclick = () => setHidden(true);
+dot.onclick = () => setHidden(false);
+addEventListener('keydown', e => { if (e.key === 'Escape') setHidden(!bar.classList.contains('hide')); });
+</script>
+</body>
+</html>

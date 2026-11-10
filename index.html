@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Opus 5.5 vs Fable 5.2 · 单文件 Demo 对比</title>
+<style>
+  :root{--bg:#0b0d16;--card:#141826;--line:rgba(255,255,255,.09);--txt:#eef1f8;--dim:#98a0b6;--a:#ff8a3d;--b:#7c8cff}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"PingFang SC","Segoe UI",sans-serif;line-height:1.55}
+  .wrap{max-width:1040px;margin:0 auto;padding:36px 20px 60px}
+  h1{font-size:clamp(28px,5vw,42px);margin:0 0 6px;letter-spacing:-.02em}
+  h1 .a{color:var(--a)} h1 .b{color:var(--b)}
+  .lead{color:var(--dim);margin:0 0 28px}
+  .test{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:18px}
+  .head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+  .head h2{margin:0;font-size:20px}
+  .num{color:var(--dim);font-weight:800;margin-right:8px}
+  .cmp{background:linear-gradient(90deg,var(--a),var(--b));color:#0b0d16;font-weight:800;text-decoration:none;padding:8px 14px;border-radius:10px;font-size:14px}
+  details{margin:12px 0 14px}
+  summary{cursor:pointer;color:var(--dim);font-size:14px}
+  pre{white-space:pre-wrap;background:rgba(255,255,255,.04);border-radius:10px;padding:12px 14px;font-size:13px;color:#cfd5e6;margin:10px 0 0}
+  .models{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .m{display:block;text-decoration:none;color:var(--txt);border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:rgba(255,255,255,.025)}
+  .m:hover{background:rgba(255,255,255,.06)}
+  .m .tag{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+  .m.a .tag{color:var(--a)} .m.b .tag{color:var(--b)}
+  .m .go{color:var(--dim);font-size:13px;margin-top:4px}
+  .foot{color:var(--dim);font-size:13px;margin-top:28px}
+  @media(max-width:560px){.models{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1><span class="a">Opus 5.5</span> vs <span class="b">Fable 5.2</span></h1>
+  <p class="lead">同一组提示词，每个结果都是单个 HTML 文件、无外部素材（城市场景仅从 CDN 加载 Three.js）。点击模型名打开 Demo，或用「并排对比」同屏运行两个版本。</p>
+  <div id="list"></div>
+  <p class="foot">提示词原文见 <code>prompts/</code> 目录。</p>
+</div>
+<script>
+const TESTS = [
+  { id:'01', file:'01-night-city.html', title:'程序化夜景城市', sub:'Three.js · 昼夜循环 · 电影镜头 / 自由飞行',
+    prompt:'Build a single self-contained HTML file using Three.js (from a CDN, no other external assets). Create a procedurally generated city at night: varied skyscrapers with lit windows, streets with cars whose headlights and taillights move along the roads, and a smooth day-to-night cycle. Add a cinematic camera that flies through the city automatically, and let me switch to free-fly mode with the mouse and keyboard. Everything must be generated in code. It should run at 60fps in a normal browser.' },
+  { id:'02', file:'02-racing-game.html', title:'俯视角街机赛车', sub:'3 条赛道 · AI 走线 · 漂移 · Web Audio',
+    prompt:'Make a complete, polished browser game in one HTML file: a top-down arcade racing game with 3 tracks, AI opponents that take different racing lines, drifting with tire marks and particles, a lap timer, a best-lap leaderboard, a start menu, and synthesized sound effects using the Web Audio API. No external assets; draw everything with code. It should feel fun to play, not like a demo.' },
+  { id:'03', file:'03-fluid.html', title:'GPU 实时流体模拟', sub:'WebGL · 粘度 / 涡度 / 颜色 · 障碍物绕流',
+    prompt:'Create a single HTML file with an interactive real-time fluid simulation on the GPU (WebGL). I can drag the mouse to stir colorful dye through the fluid, and there are on-screen sliders for viscosity, vorticity, and color. Add a mode where solid objects I draw act as obstacles the fluid flows around. Make it look beautiful and run smoothly.' }
+];
+const esc = s => s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+document.getElementById('list').innerHTML = TESTS.map(t => `
+  <section class="test">
+    <div class="head"><h2><span class="num">${t.id}</span>${t.title}</h2><a class="cmp" href="compare.html?t=${t.id}">并排对比 ▸</a></div>
+    <div style="color:var(--dim);font-size:14px;margin-top:4px">${t.sub}</div>
+    <details><summary>查看提示词</summary><pre>${esc(t.prompt)}</pre></details>
+    <div class="models">
+      <a class="m a" href="opus-5.5/${t.file}"><div class="tag">Claude Opus 5.5</div><div class="go">全屏打开 →</div></a>
+      <a class="m b" href="fable-5.2/${t.file}"><div class="tag">Claude Fable 5.2</div><div class="go">全屏打开 →</div></a>
+    </div>
+  </section>`).join('');
+</script>
+</body>
+</html>
